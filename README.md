@@ -5,4 +5,4 @@ This is a simulatore for evaluating conflict misses in hybrid memory systems
 The programming tool is Visual Studio Code and the format is based on the official documents at the website:
 https://code.visualstudio.com/docs/cpp/config-msvc
 
-The configuration files for compiling are inside the \vscode directory.
+The configuration files for compiling are inside the \vscode directory. Note you needs to recreate the \.vscode directoey and copy the instructions from its files in order to build your own project.
