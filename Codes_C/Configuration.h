@@ -6,11 +6,13 @@
 #define WIN32 1
 #define LINUX 2
 
+// Standard libraries
 #include <stdio.h>
 #include <stdlib.h>
 #include <omp.h>
 #include <limits.h>
 #include <stdint.h> 
+#include <ctype.h>
 
 #if (OS == WIN32)
 #include <time.h>
@@ -18,6 +20,7 @@
 #include <sys/time.h>
 #endif
 
-
+// User files
+#include "DataType.h"
 
 #endif 
