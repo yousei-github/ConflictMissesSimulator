@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <omp.h>
 #include <limits.h>
-#include <stdint.h> 
+#include <stdint.h>
 #include <ctype.h>
 
 #if (OS == WIN32)
@@ -25,4 +25,4 @@
 #include "File_operation.h"
 #include "Memory_trace.h"
 
-#endif 
+#endif
