@@ -23,5 +23,6 @@
 // User files
 #include "DataType.h"
 #include "File_operation.h"
+#include "Memory_trace.h"
 
 #endif 

@@ -23,7 +23,7 @@ FilePathType FilePath[19] = {
     "..\\memory_traces_50000\\654.roms_s-842B.champsimtrace.xz_DRAM_addr.csv",
     "..\\memory_traces_50000\\657.xz_s-3167B.champsimtrace.xz_DRAM_addr.csv"};
 
-MemoryRequestType *read_csv_to_get_memory_trace(FilePathType *_filepath)
+MemoryRequestType *read_csv_to_get_memory_trace(FilePathType *_filepath, BenchmarkType *_benchmark)
 {
     // Read one .csv file
     FILE *fd1 = fopen(*_filepath, "r");
@@ -69,6 +69,7 @@ MemoryRequestType *read_csv_to_get_memory_trace(FilePathType *_filepath)
             break;
     }
     printf("(File_operation.c) count is %lld\n", count);
+    _benchmark->length = count;
 
     // prepare space to load all memory traces
     MemoryRequestType *_MemoryRequest = (MemoryRequestType *)malloc(sizeof(MemoryRequestType) * count);
@@ -127,5 +128,6 @@ MemoryRequestType *read_csv_to_get_memory_trace(FilePathType *_filepath)
     // }
 
     fclose(fd1);
+    _benchmark->memorytrace = _MemoryRequest;
     return _MemoryRequest;
 }

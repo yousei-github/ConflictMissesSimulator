@@ -13,6 +13,6 @@ typedef char FilePathType[FILEPATHTYPE_LENGTH];
 
 FilePathType FilePath[FILEPATH_LENGTH];
 
-MemoryRequestType* read_csv_to_get_memory_trace(FilePathType* _filepath);
+MemoryRequestType *read_csv_to_get_memory_trace(FilePathType *_filepath, BenchmarkType *_benchmark);
 
 #endif
