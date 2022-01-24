@@ -24,5 +24,7 @@
 #include "DataType.h"
 #include "File_operation.h"
 #include "Memory_trace.h"
+#include "Memory_structure.h"
+#include "Hybrid_simulation.h"
 
 #endif

@@ -1,7 +1,6 @@
 #include "Memory_trace.h"
 #include <stdlib.h>
 #include <string.h>
-#include "DataType.h"
 
 static int cmp_uint64_t(const void *a, const void *b);
 
@@ -41,7 +40,7 @@ void collect_unique_address(MemoryRequestType *_memoryrequest, uint64_t _length,
     // {
     //     printf("%lld %lld\n", i, buffer[i]);
     // }
-    printf("(Memory_trace.c) bufferlength: %lld\n", bufferlength);
+    printf("(Memory_trace.c) bufferlength: %lld (# of unique addresses), ", bufferlength);
 
     // allocate the exact size of buffer for unique memory request storage
     uint64_t *buffer2 = (uint64_t *)malloc(sizeof(uint64_t) * bufferlength);
@@ -78,7 +77,7 @@ uint64_t calculate_memory_footprint(BenchmarkType *_benchmark)
             //printf("(Memory_trace.c) base: %lld at %lld\n", base, page_count);
         }
     }
-    printf("(Memory_trace.c) page_count: %lld, total used memory: %lld B\n", page_count, page_count * PAGE_SIZE);
+    printf("page_count: %lld, total used memory: %lld B\n", page_count, page_count * PAGE_SIZE);
 
     // allocate the exact size of buffer for page storage
     TotalPageType *page_temp = (TotalPageType *)malloc(sizeof(TotalPageType) * page_count);

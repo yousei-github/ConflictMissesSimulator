@@ -1,6 +1,5 @@
 #include "File_operation.h"
 #include <stdio.h>
-#include "DataType.h"
 
 FilePathType FilePath[19] = {
     "..\\memory_traces_50000\\600.perlbench_s-210B.champsimtrace.xz_DRAM_addr.csv",
@@ -34,7 +33,7 @@ MemoryRequestType *read_csv_to_get_memory_trace(FilePathType *_filepath, Benchma
     }
     fseek(fd1, 0, SEEK_END); // Go to the end of this file
     uint64_t length = ftell(fd1);
-    printf("(File_operation.c) Open file .csv successfully. length = %lld B or %lld KB\n", length, length / 1024);
+    printf("(File_operation.c) Open file .csv successfully. length = %lld B or %lld KB, ", length, length / 1024);
 
     // Read .csv file's first 30 bytes and see what they are
     // fseek(fd1, 0, SEEK_SET);    // Go to the beginning of this file
@@ -68,7 +67,7 @@ MemoryRequestType *read_csv_to_get_memory_trace(FilePathType *_filepath, Benchma
         if (feof(fd1))
             break;
     }
-    printf("(File_operation.c) count is %lld\n", count);
+    printf("count is %lld, ", count);
     _benchmark->length = count;
 
     // prepare space to load all memory traces
@@ -120,7 +119,7 @@ MemoryRequestType *read_csv_to_get_memory_trace(FilePathType *_filepath, Benchma
             _max_address = _MemoryRequest[i].address;
     }
 
-    printf("(File_operation.c) max_address: %lld min_address: %lld\n", _max_address, _min_address);
+    printf("max_address: %lld min_address: %lld\n", _max_address, _min_address);
     // print all memory traces
     // for (uint64_t i = 0; i < count; i++)
     // {

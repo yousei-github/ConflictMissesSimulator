@@ -21,9 +21,9 @@ typedef struct
 typedef struct
 {
 	MemoryRequestType *memorytrace;
-	uint64_t length;	// for memorytrace
+	uint64_t length; // for memorytrace
 	TotalPageType *totalpage;
-	uint64_t length2;	// for totalpage
+	uint64_t length2; // for totalpage
 } BenchmarkType;
 
 typedef struct
@@ -31,5 +31,17 @@ typedef struct
 	uint64_t *buffer;
 	uint64_t length;
 } BufferType64bit;
+
+typedef enum
+{
+	cold = 0,
+	hot = 1,
+} HotnessType;
+
+typedef enum
+{
+	slow = 0,
+	fast = 1,
+} LatencyType;
 
 #endif
