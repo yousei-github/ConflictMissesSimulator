@@ -1,10 +1,16 @@
 #ifndef __CONFIGURATION_H
 #define __CONFIGURATION_H
 
-#define OS WIN32
+#define OS (WIN32)
+#define THRESHOLD (8)
+#define TEST_BENCHMARK (5)
+#define OUTPUT_DETAIL (DISABLE)
 
 #define WIN32 1
 #define LINUX 2
+
+#define ENABLE (1)
+#define DISABLE (0)
 
 // Standard libraries
 #include <stdio.h>

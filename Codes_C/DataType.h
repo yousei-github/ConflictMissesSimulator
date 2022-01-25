@@ -44,4 +44,6 @@ typedef enum
 	fast = 1,
 } LatencyType;
 
+void benchmark_deallocation(BenchmarkType *_benchmark);
+
 #endif

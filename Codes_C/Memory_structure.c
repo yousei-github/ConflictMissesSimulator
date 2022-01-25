@@ -66,7 +66,7 @@ MemoryStructureType *memory_structure_initialization(BenchmarkType *_benchmark, 
     }
     if (_associative == Fully_Associative)
     {
-        ((FastMemoryStructureTypeFive *)memorystructure->fastmemorystructure)->page_table = malloc(sizeof(PageTableType) * memorystructure->set_size);
+        ((FastMemoryStructureTypeFive *)memorystructure->fastmemorystructure)->page_table = (PageTableType *)malloc(sizeof(PageTableType) * memorystructure->set_size);
         if (((FastMemoryStructureTypeFive *)memorystructure->fastmemorystructure)->page_table == NULL)
         {
             printf("(Memory_structure.c) Error: Memory allocation failed.\n");
@@ -93,51 +93,37 @@ void fast_memory_structure_initialization(MemoryStructureType *_memorystructure)
     case Two_Way:
         for (uint64_t i = 0; i < _memorystructure->set_size; i++)
         {
-            ((FastMemoryStructureTypeTwo *)_memorystructure->fastmemorystructure)[i].page_number1 = 0;
-            ((FastMemoryStructureTypeTwo *)_memorystructure->fastmemorystructure)[i].page_number2 = 0;
-            ((FastMemoryStructureTypeTwo *)_memorystructure->fastmemorystructure)[i].old_bit = 0;
+            ((FastMemoryStructureTypeTwo *)_memorystructure->fastmemorystructure)[i].page_number[0] = 0;
+            ((FastMemoryStructureTypeTwo *)_memorystructure->fastmemorystructure)[i].page_number[1] = 0;
+            ((FastMemoryStructureTypeTwo *)_memorystructure->fastmemorystructure)[i].old_bit = position_one;
         }
         break;
     case Four_Way:
         for (uint64_t i = 0; i < _memorystructure->set_size; i++)
         {
-            ((FastMemoryStructureTypeThree *)_memorystructure->fastmemorystructure)[i].page_number1 = 0;
-            ((FastMemoryStructureTypeThree *)_memorystructure->fastmemorystructure)[i].page_number2 = 0;
-            ((FastMemoryStructureTypeThree *)_memorystructure->fastmemorystructure)[i].page_number3 = 0;
-            ((FastMemoryStructureTypeThree *)_memorystructure->fastmemorystructure)[i].page_number4 = 0;
-            ((FastMemoryStructureTypeThree *)_memorystructure->fastmemorystructure)[i].track1 = 0;
-            ((FastMemoryStructureTypeThree *)_memorystructure->fastmemorystructure)[i].track2 = 0;
-            ((FastMemoryStructureTypeThree *)_memorystructure->fastmemorystructure)[i].track3 = 0;
-            ((FastMemoryStructureTypeThree *)_memorystructure->fastmemorystructure)[i].track4 = 0;
+            for (uint64_t j = 0; j < Four_Way; j++)
+            {
+                ((FastMemoryStructureTypeThree *)_memorystructure->fastmemorystructure)[i].page_number[j] = 0;
+                ((FastMemoryStructureTypeThree *)_memorystructure->fastmemorystructure)[i].track[j] = position_one;
+            }
         }
         break;
     case Eight_Way:
         for (uint64_t i = 0; i < _memorystructure->set_size; i++)
         {
-            ((FastMemoryStructureTypeFour *)_memorystructure->fastmemorystructure)[i].page_number1 = 0;
-            ((FastMemoryStructureTypeFour *)_memorystructure->fastmemorystructure)[i].page_number2 = 0;
-            ((FastMemoryStructureTypeFour *)_memorystructure->fastmemorystructure)[i].page_number3 = 0;
-            ((FastMemoryStructureTypeFour *)_memorystructure->fastmemorystructure)[i].page_number4 = 0;
-            ((FastMemoryStructureTypeFour *)_memorystructure->fastmemorystructure)[i].page_number5 = 0;
-            ((FastMemoryStructureTypeFour *)_memorystructure->fastmemorystructure)[i].page_number6 = 0;
-            ((FastMemoryStructureTypeFour *)_memorystructure->fastmemorystructure)[i].page_number7 = 0;
-            ((FastMemoryStructureTypeFour *)_memorystructure->fastmemorystructure)[i].page_number8 = 0;
-            ((FastMemoryStructureTypeFour *)_memorystructure->fastmemorystructure)[i].track1 = 0;
-            ((FastMemoryStructureTypeFour *)_memorystructure->fastmemorystructure)[i].track2 = 0;
-            ((FastMemoryStructureTypeFour *)_memorystructure->fastmemorystructure)[i].track3 = 0;
-            ((FastMemoryStructureTypeFour *)_memorystructure->fastmemorystructure)[i].track4 = 0;
-            ((FastMemoryStructureTypeFour *)_memorystructure->fastmemorystructure)[i].track5 = 0;
-            ((FastMemoryStructureTypeFour *)_memorystructure->fastmemorystructure)[i].track6 = 0;
-            ((FastMemoryStructureTypeFour *)_memorystructure->fastmemorystructure)[i].track7 = 0;
-            ((FastMemoryStructureTypeFour *)_memorystructure->fastmemorystructure)[i].track8 = 0;
+            for (uint64_t j = 0; j < Eight_Way; j++)
+            {
+                ((FastMemoryStructureTypeFour *)_memorystructure->fastmemorystructure)[i].page_number[j] = 0;
+                ((FastMemoryStructureTypeFour *)_memorystructure->fastmemorystructure)[i].track[j] = position_one;
+            }
         }
         break;
     case Fully_Associative:
         for (uint64_t i = 0; i < _memorystructure->set_size; i++)
         {
             ((FastMemoryStructureTypeFive *)_memorystructure->fastmemorystructure)->page_table[i].PPN = 0;
+            ((FastMemoryStructureTypeFive *)_memorystructure->fastmemorystructure)->page_table[i].track = position_one; // here is different from other set-associative structure
         }
-        ((FastMemoryStructureTypeFive *)_memorystructure->fastmemorystructure)->cold_pagenumber = 0;
         break;
     default:
         exit(1); // error if comes here
@@ -164,13 +150,17 @@ void memory_structure_deallocation(MemoryStructureType *_memorystructure)
         break;
     case Fully_Associative:
         free(((FastMemoryStructureTypeFive *)_memorystructure->fastmemorystructure)->page_table);
+        ((FastMemoryStructureTypeFive *)_memorystructure->fastmemorystructure)->page_table = NULL;
         free(_memorystructure->fastmemorystructure);
         break;
     default:
         exit(1); // error if comes here
         break;
     }
+    _memorystructure->fastmemorystructure = NULL;
 
     free(_memorystructure->pagemetadata);
     free(_memorystructure);
+    _memorystructure->pagemetadata = NULL;
+    _memorystructure = NULL;
 }

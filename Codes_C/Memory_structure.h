@@ -5,8 +5,20 @@
 
 typedef enum
 {
-    Ratio_1_to_4 = 5,  // 1:4
-    Ratio_1_to_8 = 9,  // 1:8
+    position_one = 0,
+    position_two = 1, // two way uses above
+    position_three = 2,
+    position_four = 3, // four way uses above
+    position_five = 4,
+    position_six = 5,
+    position_seven = 6,
+    position_eight = 7, // eight way uses above
+} TrackType;            // the higher position is less recently used (the highest position is least recently used)
+
+typedef enum
+{
+    Ratio_1_to_4 = 5,   // 1:4
+    Ratio_1_to_8 = 9,   // 1:8
     Ratio_1_to_16 = 17, // 1:16
 } TwoLevelRatioType;
 
@@ -34,33 +46,32 @@ typedef struct
 
 typedef struct
 {
-    uint64_t page_number1;
-    uint64_t page_number2;
-    uint8_t old_bit;          // LRU replacement policy for Two_Way
+    uint64_t page_number[Two_Way];
+    TrackType old_bit;        // LRU replacement policy for Two_Way
 } FastMemoryStructureTypeTwo; // Two_Way
 
 typedef struct
 {
-    uint64_t page_number1, page_number2, page_number3, page_number4;
-    uint8_t track1, track2, track3, track4; // LRU replacement policy for Four_Way
-} FastMemoryStructureTypeThree;             // Four_Way
+    uint64_t page_number[Four_Way];
+    TrackType track[Four_Way];  // LRU replacement policy for Four_Way
+} FastMemoryStructureTypeThree; // Four_Way
 
 typedef struct
 {
-    uint64_t page_number1, page_number2, page_number3, page_number4, page_number5, page_number6, page_number7, page_number8;
-    uint8_t track1, track2, track3, track4, track5, track6, track7, track8; // LRU replacement policy for Eight_Way
-} FastMemoryStructureTypeFour;                                              // Eight_Way
+    uint64_t page_number[Eight_Way];
+    TrackType track[Eight_Way]; // LRU replacement policy for Eight_Way
+} FastMemoryStructureTypeFour;  // Eight_Way
 
 typedef struct
 {
     // no need for virtual page number
-    uint64_t PPN; // physical page number
+    uint64_t PPN;   // physical page number
+    uint64_t track; // LRU replacement policy for Fully_Associative
 } PageTableType;
 
 typedef struct
 {
     PageTableType *page_table;
-    uint64_t cold_pagenumber;  // LRU replacement policy for Fully_Associative
 } FastMemoryStructureTypeFive; // Fully_Associative
 
 typedef struct
@@ -70,7 +81,7 @@ typedef struct
     uint64_t set_size;
     SetAssociativeType set_associative;
     PageMetadataType *pagemetadata; // store all used pages
-    void *fastmemorystructure;  // FastMemoryStructureTypeOne, FastMemoryStructureTypeTwo, FastMemoryStructureTypeThree, FastMemoryStructureTypeFour, FastMemoryStructureTypeFive
+    void *fastmemorystructure;      // FastMemoryStructureTypeOne, FastMemoryStructureTypeTwo, FastMemoryStructureTypeThree, FastMemoryStructureTypeFour, FastMemoryStructureTypeFive
 } MemoryStructureType;
 
 MemoryStructureType *memory_structure_initialization(BenchmarkType *_benchmark, TwoLevelRatioType _ratio, SetAssociativeType _associative, uint8_t _threshold);
