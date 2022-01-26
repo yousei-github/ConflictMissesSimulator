@@ -33,9 +33,9 @@ MemoryStructureType *memory_structure_initialization(BenchmarkType *_benchmark, 
     // clear value
     for (uint64_t i = 0; i < _benchmark->length2; i++)
     {
-        memorystructure->pagemetadata->counter = 0;
-        memorystructure->pagemetadata->hot_bit = cold;
-        memorystructure->pagemetadata->fast_bit = slow;
+        memorystructure->pagemetadata[i].counter = 0;
+        memorystructure->pagemetadata[i].hot_bit = cold;
+        memorystructure->pagemetadata[i].fast_bit = slow;
     }
 
     switch (_associative)
@@ -150,17 +150,13 @@ void memory_structure_deallocation(MemoryStructureType *_memorystructure)
         break;
     case Fully_Associative:
         free(((FastMemoryStructureTypeFive *)_memorystructure->fastmemorystructure)->page_table);
-        ((FastMemoryStructureTypeFive *)_memorystructure->fastmemorystructure)->page_table = NULL;
         free(_memorystructure->fastmemorystructure);
         break;
     default:
         exit(1); // error if comes here
         break;
     }
-    _memorystructure->fastmemorystructure = NULL;
 
     free(_memorystructure->pagemetadata);
     free(_memorystructure);
-    _memorystructure->pagemetadata = NULL;
-    _memorystructure = NULL;
 }

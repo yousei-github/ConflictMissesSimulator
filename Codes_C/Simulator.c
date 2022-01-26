@@ -12,15 +12,8 @@ int main(int argc, char *argv[])
     BenchmarkType benchmark;
     MemoryStructureType *memorystructure;
 
-    // read_csv_to_get_memory_trace(&FilePath[TEST_BENCHMARK], &benchmark);
-    // calculate_memory_footprint(&benchmark, page);
-    // memorystructure = memory_structure_initialization(&benchmark, Ratio_1_to_4, Direct_Mapped, THRESHOLD);
-    // hybrid_direct_mapped_simulation(&benchmark, memorystructure);
-    // // remember to free the allocated memory
-    // benchmark_deallocation(&benchmark);
-    // memory_structure_deallocation(memorystructure);
-
     for (uint16_t i = 0; i < FILEPATH_LENGTH; i++)
+    //uint16_t i = 12;
     {
         printf("Benchmark: %d\n", i + 1);
         // Direct_Mapped
