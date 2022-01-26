@@ -81,24 +81,6 @@ void hybrid_set_associative_simulation(BenchmarkType *_benchmark, MemoryStructur
     uint8_t threshold = _memorystructure->threshold;
     SetAssociativeType set_associative = _memorystructure->set_associative;
 
-    uint64_t temp3 = 0;
-    for (uint64_t k = 0; k < _benchmark->length2; k++)
-    {
-        if (_memorystructure->pagemetadata[k].fast_bit == fast)
-            temp3++;
-    }
-    if (temp3 != 0)
-    {
-        printf("eRROR temp3 %lld\n", temp3);
-        //exit(1);
-        // clear value
-        for (uint64_t i = 0; i < _benchmark->length2; i++)
-        {
-            _memorystructure->pagemetadata[i].counter = 0;
-            _memorystructure->pagemetadata[i].hot_bit = cold;
-            _memorystructure->pagemetadata[i].fast_bit = slow;
-        }
-    }
     // fill page numbers into the fast memory
     switch (set_associative)
     {
@@ -147,28 +129,6 @@ void hybrid_set_associative_simulation(BenchmarkType *_benchmark, MemoryStructur
         break;
     }
 
-    uint64_t temp2 = 0;
-    for (uint64_t k = 0; k < _benchmark->length2; k++)
-    {
-        if (_memorystructure->pagemetadata[k].fast_bit == fast)
-            temp2++;
-    }
-    if (set_associative != Fully_Associative)
-    {
-        if (temp2 != _memorystructure->set_size * _memorystructure->set_associative)
-        {
-            printf("1 temp2 %lld, set_size %lld set_associative, %lld, length2 %lld\n", temp2, _memorystructure->set_size, _memorystructure->set_associative, _benchmark->length2);
-            exit(1);
-        }
-    }
-    else
-    {
-        if (temp2 != _memorystructure->set_size)
-        {
-            printf("1 temp2 %lld, set_size %lld set_associative, %lld, length2 %lld\n", temp2, _memorystructure->set_size, _memorystructure->set_associative, _benchmark->length2);
-            exit(1);
-        }
-    }
     // for (uint64_t i = 0; i < _memorystructure->set_size; i++)
     // {
     //     printf("%lld ", ((FastMemoryStructureTypeOne *)_memorystructure->fastmemorystructure)[i].page_number);
@@ -198,31 +158,19 @@ void hybrid_set_associative_simulation(BenchmarkType *_benchmark, MemoryStructur
                 }
                 else
                 {
-                    printf("Error: swap1 error %lld %lld %lld\n", ((FastMemoryStructureTypeTwo *)_memorystructure->fastmemorystructure)[set_number].page_number[0], ((FastMemoryStructureTypeTwo *)_memorystructure->fastmemorystructure)[set_number].page_number[1], current_page_number);
-                    // 652 751 850
-                    printf(" %lld, %d, %d, %d\n", i, _memorystructure->pagemetadata[652].fast_bit, _memorystructure->pagemetadata[751].fast_bit, _memorystructure->pagemetadata[850].fast_bit); //35155
-                    uint64_t temp2 = 0;
-                    for (uint64_t k = 0; k < _benchmark->length2; k++)
-                    {
-                        if (_memorystructure->pagemetadata[k].fast_bit == fast)
-                            temp2++;
-                    }
-                    printf("2 temp2 %lld, set_size %lld, set_number %lld\n", temp2, _memorystructure->set_size, set_number);
+                    printf("Error: swap1 error");
                     exit(1);
                 }
                 break;
             case Four_Way:
-                uint8_t flag = 0;
                 for (uint8_t j = 0; j < Four_Way; j++)
                 {
-
                     if (((FastMemoryStructureTypeThree *)_memorystructure->fastmemorystructure)[set_number].page_number[j] == current_page_number)
                     {
                         if (((FastMemoryStructureTypeThree *)_memorystructure->fastmemorystructure)[set_number].track[j] != position_one)
                         {
                             ((FastMemoryStructureTypeThree *)_memorystructure->fastmemorystructure)[set_number].track[j] -= 1;
                         }
-                        flag = 1;
                     }
                     else
                     {
@@ -231,10 +179,6 @@ void hybrid_set_associative_simulation(BenchmarkType *_benchmark, MemoryStructur
                             ((FastMemoryStructureTypeThree *)_memorystructure->fastmemorystructure)[set_number].track[j] += 1;
                         }
                     }
-                }
-                if (flag == 0)
-                {
-                    printf("error at LRU\n");
                 }
                 break;
             case Eight_Way:
@@ -399,29 +343,6 @@ void hybrid_set_associative_simulation(BenchmarkType *_benchmark, MemoryStructur
                 }
                 _memorystructure->pagemetadata[temp].fast_bit = slow;
                 _memorystructure->pagemetadata[current_page_number].fast_bit = fast;
-
-                temp2 = 0;
-                for (uint64_t k = 0; k < _benchmark->length2; k++)
-                {
-                    if (_memorystructure->pagemetadata[k].fast_bit == fast)
-                        temp2++;
-                }
-                if (set_associative != Fully_Associative)
-                {
-                    if (temp2 != _memorystructure->set_size * _memorystructure->set_associative)
-                    {
-                        printf("4 temp2 %lld, set_size %lld set_associative, %lld, length2 %lld\n", temp2, _memorystructure->set_size, _memorystructure->set_associative, _benchmark->length2);
-                        exit(1);
-                    }
-                }
-                else
-                {
-                    if (temp2 != _memorystructure->set_size)
-                    {
-                        printf("4 temp2 %lld, set_size %lld set_associative, %lld, length2 %lld\n", temp2, _memorystructure->set_size, _memorystructure->set_associative, _benchmark->length2);
-                        exit(1);
-                    }
-                }
             }
         }
 
@@ -505,14 +426,6 @@ void hybrid_set_associative_simulation(BenchmarkType *_benchmark, MemoryStructur
         }
         cycle++;
     }
-
-    temp2 = 0;
-    for (uint64_t k = 0; k < _benchmark->length2; k++)
-    {
-        if (_memorystructure->pagemetadata[k].fast_bit == fast)
-            temp2++;
-    }
-    //printf("Final check temp2 %lld, set_size %lld\n", temp2, _memorystructure->set_size);
 
     float hit_rate = (float)fast_access / (fast_access + slow_access);
     printf("(Hybrid_simulation.c) set_associative %d, fast_access: %lld, slow_access: %lld, hit_rate: %f\n", set_associative, fast_access, slow_access, hit_rate);
