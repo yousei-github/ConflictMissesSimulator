@@ -11,8 +11,8 @@
 				"/nologo",
 				"-openmp",
 				"/Fe:",
-				"${workspaceFolder}\\output\\${fileBasenameNoExtension}.exe",
-				"${workspaceFolder}\\Codes_C\\*.c"
+				"${workspaceFolder}\\output\\Simulator.exe",
+				"${workspaceFolder}\\Codes_C\\*.c*"
 			],
 			"options": {
 				"cwd": "${fileDirname}"
