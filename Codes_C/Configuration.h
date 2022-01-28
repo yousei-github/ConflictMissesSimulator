@@ -2,7 +2,7 @@
 #define __CONFIGURATION_H
 
 #define OS (WIN32)
-#define THRESHOLD (8)
+#define THRESHOLD (4)
 #define TEST_BENCHMARK (5)
 #define OUTPUT_DETAIL (DISABLE)
 

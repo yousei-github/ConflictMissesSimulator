@@ -2,6 +2,13 @@
 
 #define INTERVAL_FOR_DECREMENT (1000) // unit: cycle
 
+/* Declaration */
+extern void queue_initialization(uint8_t number);
+extern uint64_t queue_size(uint8_t number);
+extern uint8_t queue_empty(uint8_t number);
+extern void queue_enqueue(uint8_t number, uint64_t element);
+extern uint64_t queue_dequeue(uint8_t number);
+
 void hybrid_direct_mapped_simulation(BenchmarkType *_benchmark, MemoryStructureType *_memorystructure)
 {
     uint8_t threshold = _memorystructure->threshold;
@@ -74,6 +81,7 @@ void hybrid_direct_mapped_simulation(BenchmarkType *_benchmark, MemoryStructureT
 
     float hit_rate = (float)fast_access / (fast_access + slow_access);
     printf("(Hybrid_simulation.c) Direct_Mapped fast_access: %lld, slow_access: %lld, hit_rate: %f\n", fast_access, slow_access, hit_rate);
+    _benchmark->hit_rate = hit_rate;
 }
 
 void hybrid_set_associative_simulation(BenchmarkType *_benchmark, MemoryStructureType *_memorystructure)
@@ -429,4 +437,137 @@ void hybrid_set_associative_simulation(BenchmarkType *_benchmark, MemoryStructur
 
     float hit_rate = (float)fast_access / (fast_access + slow_access);
     printf("(Hybrid_simulation.c) set_associative %d, fast_access: %lld, slow_access: %lld, hit_rate: %f\n", set_associative, fast_access, slow_access, hit_rate);
+    _benchmark->hit_rate = hit_rate;
+}
+
+void hybrid_fully_associative_simulation_usingqueue(BenchmarkType *_benchmark, MemoryStructureType *_memorystructure)
+{
+    uint8_t threshold = _memorystructure->threshold;
+    SetAssociativeType set_associative = _memorystructure->set_associative;
+
+    if (set_associative != Fully_Associative)
+    {
+        exit(1);
+    }
+    // fill page numbers into the fast memory
+    for (uint64_t i = 0; i < _memorystructure->set_size; i++)
+    {
+        ((FastMemoryStructureTypeFive *)_memorystructure->fastmemorystructure)->page_table[i].PPN = i;
+        _memorystructure->pagemetadata[i].fast_bit = fast;
+        ((FastMemoryStructureTypeFive *)_memorystructure->fastmemorystructure)->page_table[i].track = position_one + i;
+    }
+
+    uint64_t fast_access = 0;
+    uint64_t slow_access = 0;
+    uint64_t cycle = 1;
+    for (uint64_t i = 0; i < _benchmark->length; i++) // go through all memory requests
+    {
+        uint64_t current_page_number = _benchmark->memorytrace[i].page_number;
+        uint64_t set_number = current_page_number % _memorystructure->set_size;
+        if (_memorystructure->pagemetadata[current_page_number].fast_bit == fast)
+        {
+            fast_access++;
+        }
+        else
+        {
+            slow_access++;
+        }
+
+        if (_memorystructure->pagemetadata[current_page_number].counter < UINT8_MAX)
+            _memorystructure->pagemetadata[current_page_number].counter++; // increment its counter
+
+        if (_memorystructure->pagemetadata[current_page_number].counter >= threshold)
+            _memorystructure->pagemetadata[current_page_number].hot_bit = hot; // mark hot page
+
+        if (_memorystructure->pagemetadata[current_page_number].hot_bit == hot) // swap if the hot page is in slow memory
+        {
+            if (_memorystructure->pagemetadata[current_page_number].fast_bit == slow)
+            {
+                uint8_t flag1 = 0;
+                while (queue_empty(0) == 0) // if the cold queue is not empty
+                {
+                    uint64_t temp = queue_dequeue(0); // get a member
+                    uint64_t old_page_number = 0;
+                    //printf("dequeue queue_size %lld temp %lld current_page_number %lld\n", queue_size(0), temp, current_page_number);
+                    if ((_memorystructure->pagemetadata[temp].hot_bit == cold) && (_memorystructure->pagemetadata[temp].fast_bit == fast)) // if the member is still cold
+                    {
+                        uint8_t flag = 0;
+                        for (uint64_t j = 0; j < _memorystructure->set_size; j++) // go through the fast memory
+                        {
+                            if (((FastMemoryStructureTypeFive *)_memorystructure->fastmemorystructure)->page_table[j].PPN == temp)
+                            {
+                                old_page_number = ((FastMemoryStructureTypeFive *)_memorystructure->fastmemorystructure)->page_table[j].PPN;
+                                ((FastMemoryStructureTypeFive *)_memorystructure->fastmemorystructure)->page_table[j].PPN = current_page_number;
+                                _memorystructure->pagemetadata[old_page_number].fast_bit = slow;
+                                _memorystructure->pagemetadata[current_page_number].fast_bit = fast;
+                                flag = 1;
+                                flag1 = 1;
+                                break;
+                            }
+                        }
+                        if (flag == 0)
+                        {
+                            printf("Error at cold, old_page_number %lld", _memorystructure->pagemetadata[old_page_number].fast_bit);
+                            exit(1);
+                        }
+                        //printf("2 queue_size %lld\n", queue_size(0));
+                        break;
+                    }
+                }
+
+                if (flag1 == 0)
+                {
+                    uint64_t temp = ((FastMemoryStructureTypeFive *)_memorystructure->fastmemorystructure)->page_table[0].PPN;
+                    uint64_t counter = _memorystructure->pagemetadata[temp].counter;
+                    uint64_t vpn = 0;
+                    for (uint64_t j = 1; j < _memorystructure->set_size; j++) // go through the fast memory
+                    {
+                        uint64_t temp2 = ((FastMemoryStructureTypeFive *)_memorystructure->fastmemorystructure)->page_table[j].PPN;
+                        if (_memorystructure->pagemetadata[temp2].counter < counter)
+                        {
+                            temp = temp2;
+                            counter = _memorystructure->pagemetadata[temp2].counter;
+                            vpn = j;
+                        }
+                    }
+                    //old_page_number = ((FastMemoryStructureTypeFive *)_memorystructure->fastmemorystructure)->page_table[j].PPN;
+                    ((FastMemoryStructureTypeFive *)_memorystructure->fastmemorystructure)->page_table[vpn].PPN = current_page_number;
+                    _memorystructure->pagemetadata[temp].fast_bit = slow;
+                    _memorystructure->pagemetadata[current_page_number].fast_bit = fast;
+                }
+            }
+        }
+
+        // decrease all pages' counter per INTERVAL_FOR_DECREMENT cycles
+        if (cycle % INTERVAL_FOR_DECREMENT == 0)
+        {
+            for (uint64_t j = 0; j < _benchmark->length2; j++)
+            {
+                _memorystructure->pagemetadata[j].counter /= 2;
+                if (_memorystructure->pagemetadata[j].counter < threshold)
+                {
+                    if (_memorystructure->pagemetadata[j].hot_bit == hot)
+                    {
+                        _memorystructure->pagemetadata[j].hot_bit = cold; // mark cold page
+
+                        if (_memorystructure->pagemetadata[j].fast_bit == fast) // new cold pages in fast memory need go to the queue
+                        {
+                            queue_enqueue(0, j);
+                            //printf("enqueue: %lld queue_size %lld\n", j, queue_size(0));
+                        }
+                    }
+                }
+            }
+            // for (uint64_t i = 0; i < _memorystructure->set_size; i++)
+            // {
+            //     printf("%lld ", ((FastMemoryStructureTypeOne *)_memorystructure->fastmemorystructure)[i].page_number);
+            // }
+            // printf("\n");
+        }
+        cycle++;
+    }
+
+    float hit_rate = (float)fast_access / (fast_access + slow_access);
+    printf("(Hybrid_simulation.c) set_associative %d, fast_access: %lld, slow_access: %lld, hit_rate: %f\n", set_associative, fast_access, slow_access, hit_rate);
+    _benchmark->hit_rate = hit_rate;
 }

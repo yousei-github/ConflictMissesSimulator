@@ -1,6 +1,11 @@
 #include "Configuration.h"
 
 /* Declaration */
+extern void queue_initialization(uint8_t number);
+extern uint64_t queue_size(uint8_t number);
+extern uint8_t queue_empty(uint8_t number);
+extern void queue_enqueue(uint8_t number, uint64_t element);
+extern uint64_t queue_dequeue(uint8_t number);
 
 int main(int argc, char *argv[])
 {
@@ -9,6 +14,9 @@ int main(int argc, char *argv[])
     { /* if an argument is specified */
         printf("if an argument is specified");
     }
+    queue_initialization(0);
+
+    FILE *fd1 = fopen("data.csv", "w");
     BenchmarkType benchmark;
     MemoryStructureType *memorystructure;
 
@@ -24,6 +32,8 @@ int main(int argc, char *argv[])
         // remember to free the allocated memory
         benchmark_deallocation(&benchmark);
         memory_structure_deallocation(memorystructure);
+        //fprintf(fd1, "%f\n", benchmark.hit_rate);
+        fprintf(fd1, "%f ", benchmark.hit_rate);
 
         // Two_Way
         read_csv_to_get_memory_trace(&FilePath[i], &benchmark);
@@ -33,6 +43,8 @@ int main(int argc, char *argv[])
         // remember to free the allocated memory
         benchmark_deallocation(&benchmark);
         memory_structure_deallocation(memorystructure);
+        //fprintf(fd1, "%f\n", benchmark.hit_rate);
+        fprintf(fd1, "%f ", benchmark.hit_rate);
 
         // Four_Way
         read_csv_to_get_memory_trace(&FilePath[i], &benchmark);
@@ -42,6 +54,8 @@ int main(int argc, char *argv[])
         // remember to free the allocated memory
         benchmark_deallocation(&benchmark);
         memory_structure_deallocation(memorystructure);
+        //fprintf(fd1, "%f\n", benchmark.hit_rate);
+        fprintf(fd1, "%f ", benchmark.hit_rate);
 
         // Eight_Way
         read_csv_to_get_memory_trace(&FilePath[i], &benchmark);
@@ -51,17 +65,25 @@ int main(int argc, char *argv[])
         // remember to free the allocated memory
         benchmark_deallocation(&benchmark);
         memory_structure_deallocation(memorystructure);
+        //fprintf(fd1, "%f\n", benchmark.hit_rate);
+        fprintf(fd1, "%f ", benchmark.hit_rate);
 
         // Fully_Associative
         read_csv_to_get_memory_trace(&FilePath[i], &benchmark);
         calculate_memory_footprint(&benchmark, page);
         memorystructure = memory_structure_initialization(&benchmark, Ratio_1_to_4, Fully_Associative, THRESHOLD);
-        hybrid_set_associative_simulation(&benchmark, memorystructure);
+        //hybrid_set_associative_simulation(&benchmark, memorystructure);
+        hybrid_fully_associative_simulation_usingqueue(&benchmark, memorystructure);
         // remember to free the allocated memory
         benchmark_deallocation(&benchmark);
         memory_structure_deallocation(memorystructure);
+        //fprintf(fd1, "%f\n\n", benchmark.hit_rate);
+        fprintf(fd1, "%f; ", benchmark.hit_rate);
+
+        queue_initialization(0);
     }
 
+    fclose(fd1);
     printf("End.\n---------------------------------------\n\n");
     return 0;
 }

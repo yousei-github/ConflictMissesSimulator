@@ -9,10 +9,19 @@
 #define FILEPATHTYPE_LENGTH (80)
 #define FILEPATH_LENGTH (19)
 
-typedef char FilePathType[FILEPATHTYPE_LENGTH];
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
-FilePathType FilePath[FILEPATH_LENGTH];
+    typedef char FilePathType[FILEPATHTYPE_LENGTH];
 
-MemoryRequestType *read_csv_to_get_memory_trace(FilePathType *_filepath, BenchmarkType *_benchmark);
+    FilePathType FilePath[FILEPATH_LENGTH];
+
+    MemoryRequestType *read_csv_to_get_memory_trace(FilePathType *_filepath, BenchmarkType *_benchmark);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

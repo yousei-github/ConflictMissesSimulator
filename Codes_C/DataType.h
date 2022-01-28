@@ -5,45 +5,55 @@
 #define KB (1024) // unit is Byte
 #define PAGE_SIZE (4 * KB)
 
-typedef struct
+#ifdef __cplusplus
+extern "C"
 {
-	uint64_t address;
-	uint64_t page_number;
-	uint8_t type; // Read: 0, Write: 1
-} MemoryRequestType;
+#endif
 
-typedef struct
-{
-	uint64_t base;
-	uint64_t page_number;
-} TotalPageType;
+	typedef struct
+	{
+		uint64_t address;
+		uint64_t page_number;
+		uint8_t type; // Read: 0, Write: 1
+	} MemoryRequestType;
 
-typedef struct
-{
-	MemoryRequestType *memorytrace;
-	uint64_t length; // for memorytrace
-	TotalPageType *totalpage;
-	uint64_t length2; // for totalpage
-} BenchmarkType;
+	typedef struct
+	{
+		uint64_t base;
+		uint64_t page_number;
+	} TotalPageType;
 
-typedef struct
-{
-	uint64_t *buffer;
-	uint64_t length;
-} BufferType64bit;
+	typedef struct
+	{
+		MemoryRequestType *memorytrace;
+		uint64_t length; // for memorytrace
+		TotalPageType *totalpage;
+		uint64_t length2; // for totalpage
+		float hit_rate;
+	} BenchmarkType;
 
-typedef enum
-{
-	cold = 0,
-	hot = 1,
-} HotnessType;
+	typedef struct
+	{
+		uint64_t *buffer;
+		uint64_t length;
+	} BufferType64bit;
 
-typedef enum
-{
-	slow = 0,
-	fast = 1,
-} LatencyType;
+	typedef enum
+	{
+		cold = 0,
+		hot = 1,
+	} HotnessType;
 
-void benchmark_deallocation(BenchmarkType *_benchmark);
+	typedef enum
+	{
+		slow = 0,
+		fast = 1,
+	} LatencyType;
+
+	void benchmark_deallocation(BenchmarkType *_benchmark);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

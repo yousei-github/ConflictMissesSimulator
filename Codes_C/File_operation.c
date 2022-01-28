@@ -134,5 +134,7 @@ MemoryRequestType *read_csv_to_get_memory_trace(FilePathType *_filepath, Benchma
 
     fclose(fd1);
     _benchmark->memorytrace = _MemoryRequest;
+    _benchmark->hit_rate = 0;
     return _MemoryRequest;
 }
+
