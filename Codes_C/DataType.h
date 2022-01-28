@@ -30,6 +30,7 @@ extern "C"
 		TotalPageType *totalpage;
 		uint64_t length2; // for totalpage
 		float hit_rate;
+		float conflictmiss_rate;
 	} BenchmarkType;
 
 	typedef struct

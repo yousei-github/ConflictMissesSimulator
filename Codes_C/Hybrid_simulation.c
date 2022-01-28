@@ -3,11 +3,16 @@
 #define INTERVAL_FOR_DECREMENT (1000) // unit: cycle
 
 /* Declaration */
-extern void queue_initialization(uint8_t number);
-extern uint64_t queue_size(uint8_t number);
-extern uint8_t queue_empty(uint8_t number);
-extern void queue_enqueue(uint8_t number, uint64_t element);
-extern uint64_t queue_dequeue(uint8_t number);
+extern void coldqueue_initialization(uint8_t number);
+extern uint64_t coldqueue_size(uint8_t number);
+extern uint8_t coldqueue_empty(uint8_t number);
+extern void coldqueue_enqueue(uint8_t number, uint64_t element);
+extern uint64_t coldqueue_dequeue(uint8_t number);
+extern void hotqueue_initialization(uint8_t number);
+extern uint64_t hotqueue_size(uint8_t number);
+extern uint8_t hotqueue_empty(uint8_t number);
+extern void hotqueue_enqueue(uint8_t number, uint64_t element);
+extern uint64_t hotqueue_dequeue(uint8_t number);
 
 void hybrid_direct_mapped_simulation(BenchmarkType *_benchmark, MemoryStructureType *_memorystructure)
 {
@@ -28,6 +33,8 @@ void hybrid_direct_mapped_simulation(BenchmarkType *_benchmark, MemoryStructureT
     uint64_t fast_access = 0;
     uint64_t slow_access = 0;
     uint64_t cycle = 1;
+    uint64_t swap_count = 0;
+    uint64_t swappedhotpage_count = 0;
     for (uint64_t i = 0; i < _benchmark->length; i++) // go through all memory requests
     {
         uint64_t current_page_number = _benchmark->memorytrace[i].page_number;
@@ -56,6 +63,11 @@ void hybrid_direct_mapped_simulation(BenchmarkType *_benchmark, MemoryStructureT
                 ((FastMemoryStructureTypeOne *)_memorystructure->fastmemorystructure)[set_number].page_number = current_page_number;
                 _memorystructure->pagemetadata[temp].fast_bit = slow;
                 _memorystructure->pagemetadata[current_page_number].fast_bit = fast;
+                swap_count++;
+                if (_memorystructure->pagemetadata[temp].hot_bit == hot)
+                {
+                    swappedhotpage_count++;
+                }
             }
         }
 
@@ -80,8 +92,9 @@ void hybrid_direct_mapped_simulation(BenchmarkType *_benchmark, MemoryStructureT
     }
 
     float hit_rate = (float)fast_access / (fast_access + slow_access);
-    printf("(Hybrid_simulation.c) Direct_Mapped fast_access: %lld, slow_access: %lld, hit_rate: %f\n", fast_access, slow_access, hit_rate);
+    printf("(Hybrid_simulation.c) Direct_Mapped fast_access: %lld, slow_access: %lld, hit_rate: %f, swap_count %lld, conflictmiss_rate %f\n", fast_access, slow_access, hit_rate, swap_count, (float)swappedhotpage_count / swap_count);
     _benchmark->hit_rate = hit_rate;
+    _benchmark->conflictmiss_rate = (float)swappedhotpage_count / swap_count;
 }
 
 void hybrid_set_associative_simulation(BenchmarkType *_benchmark, MemoryStructureType *_memorystructure)
@@ -146,6 +159,8 @@ void hybrid_set_associative_simulation(BenchmarkType *_benchmark, MemoryStructur
     uint64_t fast_access = 0;
     uint64_t slow_access = 0;
     uint64_t cycle = 1;
+    uint64_t swap_count = 0;
+    uint64_t swappedhotpage_count = 0;
     for (uint64_t i = 0; i < _benchmark->length; i++) // go through all memory requests
     {
         uint64_t current_page_number = _benchmark->memorytrace[i].page_number;
@@ -351,6 +366,11 @@ void hybrid_set_associative_simulation(BenchmarkType *_benchmark, MemoryStructur
                 }
                 _memorystructure->pagemetadata[temp].fast_bit = slow;
                 _memorystructure->pagemetadata[current_page_number].fast_bit = fast;
+                swap_count++;
+                if (_memorystructure->pagemetadata[temp].hot_bit == hot)
+                {
+                    swappedhotpage_count++;
+                }
             }
         }
 
@@ -436,8 +456,9 @@ void hybrid_set_associative_simulation(BenchmarkType *_benchmark, MemoryStructur
     }
 
     float hit_rate = (float)fast_access / (fast_access + slow_access);
-    printf("(Hybrid_simulation.c) set_associative %d, fast_access: %lld, slow_access: %lld, hit_rate: %f\n", set_associative, fast_access, slow_access, hit_rate);
+    printf("(Hybrid_simulation.c) set_associative %d, fast_access: %lld, slow_access: %lld, hit_rate: %f, swap_count %lld, conflictmiss_rate %f\n", set_associative, fast_access, slow_access, hit_rate, swap_count, (float)swappedhotpage_count / swap_count);
     _benchmark->hit_rate = hit_rate;
+    _benchmark->conflictmiss_rate = (float)swappedhotpage_count / swap_count;
 }
 
 void hybrid_fully_associative_simulation_usingqueue(BenchmarkType *_benchmark, MemoryStructureType *_memorystructure)
@@ -460,6 +481,8 @@ void hybrid_fully_associative_simulation_usingqueue(BenchmarkType *_benchmark, M
     uint64_t fast_access = 0;
     uint64_t slow_access = 0;
     uint64_t cycle = 1;
+    uint64_t swap_count = 0;
+    uint64_t swappedhotpage_count = 0;
     for (uint64_t i = 0; i < _benchmark->length; i++) // go through all memory requests
     {
         uint64_t current_page_number = _benchmark->memorytrace[i].page_number;
@@ -484,11 +507,11 @@ void hybrid_fully_associative_simulation_usingqueue(BenchmarkType *_benchmark, M
             if (_memorystructure->pagemetadata[current_page_number].fast_bit == slow)
             {
                 uint8_t flag1 = 0;
-                while (queue_empty(0) == 0) // if the cold queue is not empty
+                while (coldqueue_empty(0) == 0) // if the cold queue is not empty
                 {
-                    uint64_t temp = queue_dequeue(0); // get a member
+                    uint64_t temp = coldqueue_dequeue(0); // get a member
                     uint64_t old_page_number = 0;
-                    //printf("dequeue queue_size %lld temp %lld current_page_number %lld\n", queue_size(0), temp, current_page_number);
+                    //printf("dequeue coldqueue_size %lld temp %lld current_page_number %lld\n", coldqueue_size(0), temp, current_page_number);
                     if ((_memorystructure->pagemetadata[temp].hot_bit == cold) && (_memorystructure->pagemetadata[temp].fast_bit == fast)) // if the member is still cold
                     {
                         uint8_t flag = 0;
@@ -500,6 +523,7 @@ void hybrid_fully_associative_simulation_usingqueue(BenchmarkType *_benchmark, M
                                 ((FastMemoryStructureTypeFive *)_memorystructure->fastmemorystructure)->page_table[j].PPN = current_page_number;
                                 _memorystructure->pagemetadata[old_page_number].fast_bit = slow;
                                 _memorystructure->pagemetadata[current_page_number].fast_bit = fast;
+                                swap_count++;
                                 flag = 1;
                                 flag1 = 1;
                                 break;
@@ -510,7 +534,7 @@ void hybrid_fully_associative_simulation_usingqueue(BenchmarkType *_benchmark, M
                             printf("Error at cold, old_page_number %lld", _memorystructure->pagemetadata[old_page_number].fast_bit);
                             exit(1);
                         }
-                        //printf("2 queue_size %lld\n", queue_size(0));
+                        //printf("2 coldqueue_size %lld\n", coldqueue_size(0));
                         break;
                     }
                 }
@@ -534,6 +558,8 @@ void hybrid_fully_associative_simulation_usingqueue(BenchmarkType *_benchmark, M
                     ((FastMemoryStructureTypeFive *)_memorystructure->fastmemorystructure)->page_table[vpn].PPN = current_page_number;
                     _memorystructure->pagemetadata[temp].fast_bit = slow;
                     _memorystructure->pagemetadata[current_page_number].fast_bit = fast;
+                    swap_count++;
+                    swappedhotpage_count++;
                 }
             }
         }
@@ -552,8 +578,8 @@ void hybrid_fully_associative_simulation_usingqueue(BenchmarkType *_benchmark, M
 
                         if (_memorystructure->pagemetadata[j].fast_bit == fast) // new cold pages in fast memory need go to the queue
                         {
-                            queue_enqueue(0, j);
-                            //printf("enqueue: %lld queue_size %lld\n", j, queue_size(0));
+                            coldqueue_enqueue(0, j);
+                            //printf("enqueue: %lld coldqueue_size %lld\n", j, coldqueue_size(0));
                         }
                     }
                 }
@@ -568,6 +594,482 @@ void hybrid_fully_associative_simulation_usingqueue(BenchmarkType *_benchmark, M
     }
 
     float hit_rate = (float)fast_access / (fast_access + slow_access);
-    printf("(Hybrid_simulation.c) set_associative %d, fast_access: %lld, slow_access: %lld, hit_rate: %f\n", set_associative, fast_access, slow_access, hit_rate);
+    printf("(Hybrid_simulation.c) set_associative %d, fast_access: %lld, slow_access: %lld, hit_rate: %f, swap_count %lld, conflictmiss_rate %f\n", set_associative, fast_access, slow_access, hit_rate, swap_count, (float)swappedhotpage_count / swap_count);
     _benchmark->hit_rate = hit_rate;
+    _benchmark->conflictmiss_rate = (float)swappedhotpage_count / swap_count;
+}
+
+void hybrid_simulation(BenchmarkType *_benchmark, MemoryStructureType *_memorystructure)
+{
+    uint8_t threshold = _memorystructure->threshold;
+    SetAssociativeType set_associative = _memorystructure->set_associative;
+
+    // fill page numbers into the fast memory
+    switch (set_associative)
+    {
+    case Direct_Mapped:
+        for (uint64_t i = 0; i < _memorystructure->set_size; i++)
+        {
+            ((FastMemoryStructureTypeOne *)_memorystructure->fastmemorystructure)[i].page_number = i;
+            _memorystructure->pagemetadata[i].fast_bit = fast;
+        }
+        break;
+    case Two_Way:
+        for (uint64_t i = 0; i < _memorystructure->set_size; i++)
+        {
+            ((FastMemoryStructureTypeTwo *)_memorystructure->fastmemorystructure)[i].page_number[0] = i;
+            ((FastMemoryStructureTypeTwo *)_memorystructure->fastmemorystructure)[i].page_number[1] = i + _memorystructure->set_size;
+            _memorystructure->pagemetadata[i].fast_bit = fast;
+            _memorystructure->pagemetadata[i + _memorystructure->set_size].fast_bit = fast;
+        }
+        break;
+    case Four_Way:
+        for (uint64_t i = 0; i < _memorystructure->set_size; i++)
+        {
+            for (uint64_t j = 0; j < Four_Way; j++) // go through the ways
+            {
+                ((FastMemoryStructureTypeThree *)_memorystructure->fastmemorystructure)[i].page_number[j] = i + _memorystructure->set_size * j;
+                _memorystructure->pagemetadata[i + _memorystructure->set_size * j].fast_bit = fast;
+            }
+        }
+        break;
+    case Eight_Way:
+        for (uint64_t i = 0; i < _memorystructure->set_size; i++)
+        {
+            for (uint64_t j = 0; j < Eight_Way; j++) // go through the ways
+            {
+                ((FastMemoryStructureTypeFour *)_memorystructure->fastmemorystructure)[i].page_number[j] = i + _memorystructure->set_size * j;
+                _memorystructure->pagemetadata[i + _memorystructure->set_size * j].fast_bit = fast;
+            }
+        }
+        break;
+    case Fully_Associative:
+        for (uint64_t i = 0; i < _memorystructure->set_size; i++)
+        {
+            ((FastMemoryStructureTypeFive *)_memorystructure->fastmemorystructure)->page_table[i].PPN = i;
+            _memorystructure->pagemetadata[i].fast_bit = fast;
+        }
+        break;
+    default:
+        exit(1);
+        break;
+    }
+
+    uint64_t fast_access = 0;
+    uint64_t slow_access = 0;
+    uint64_t cycle = 1;
+    uint64_t swap_count = 0;
+    uint64_t swappedhotpage_count = 0;
+    uint64_t unswappedhotpage_count = 0;
+    //uint8_t active_hotqueue = 0;                      // 0 or 1
+    for (uint64_t i = 0; i < _benchmark->length; i++) // go through all memory requests
+    {
+        uint64_t current_page_number = _benchmark->memorytrace[i].page_number;
+        if (_memorystructure->pagemetadata[current_page_number].fast_bit == fast)
+        {
+            fast_access++;
+            if (_memorystructure->pagemetadata[current_page_number].hot_bit == hot)
+            {
+                unswappedhotpage_count++;
+            }
+        }
+        else
+        {
+            slow_access++;
+
+            if (_memorystructure->pagemetadata[current_page_number].hot_bit == hot)
+            {
+                swappedhotpage_count++;
+            }
+        }
+
+        if (_memorystructure->pagemetadata[current_page_number].counter < UINT8_MAX)
+            _memorystructure->pagemetadata[current_page_number].counter++; // increment its counter
+
+        if (_memorystructure->pagemetadata[current_page_number].counter >= threshold)
+            _memorystructure->pagemetadata[current_page_number].hot_bit = hot; // mark hot page
+
+        if (_memorystructure->pagemetadata[current_page_number].hot_bit == hot) // swap if the hot page is in slow memory
+        {
+            if (_memorystructure->pagemetadata[current_page_number].fast_bit == slow)
+            {
+                uint64_t set_number = current_page_number % _memorystructure->set_size;
+                uint64_t temp;
+                uint8_t swap_tag = 0;
+
+                switch (set_associative)
+                {
+                case Direct_Mapped:
+                    temp = ((FastMemoryStructureTypeOne *)_memorystructure->fastmemorystructure)[set_number].page_number;
+                    if (_memorystructure->pagemetadata[temp].hot_bit == cold)
+                    {
+                        swap_tag = 1; // start swapping
+                        ((FastMemoryStructureTypeOne *)_memorystructure->fastmemorystructure)[set_number].page_number = current_page_number;
+                    }
+                    break;
+                case Two_Way:
+                    for (uint8_t j = 0; j < Two_Way; j++) // find if there has a cold page
+                    {
+                        temp = ((FastMemoryStructureTypeTwo *)_memorystructure->fastmemorystructure)[set_number].page_number[j];
+                        if (_memorystructure->pagemetadata[temp].hot_bit == cold)
+                        {
+                            swap_tag = 1; // start swapping
+                            ((FastMemoryStructureTypeTwo *)_memorystructure->fastmemorystructure)[set_number].page_number[j] = current_page_number;
+                            break;
+                        }
+                    }
+                    break;
+                case Four_Way:
+                    for (uint8_t j = 0; j < Four_Way; j++) // find if there has a cold page
+                    {
+                        temp = ((FastMemoryStructureTypeThree *)_memorystructure->fastmemorystructure)[set_number].page_number[j];
+                        if (_memorystructure->pagemetadata[temp].hot_bit == cold)
+                        {
+                            swap_tag = 1; // start swapping
+                            ((FastMemoryStructureTypeThree *)_memorystructure->fastmemorystructure)[set_number].page_number[j] = current_page_number;
+                            break;
+                        }
+                    }
+                    break;
+                case Eight_Way:
+                    for (uint8_t j = 0; j < Eight_Way; j++) // find if there has a cold page
+                    {
+                        temp = ((FastMemoryStructureTypeFour *)_memorystructure->fastmemorystructure)[set_number].page_number[j];
+                        if (_memorystructure->pagemetadata[temp].hot_bit == cold)
+                        {
+                            swap_tag = 1; // start swapping
+                            ((FastMemoryStructureTypeFour *)_memorystructure->fastmemorystructure)[set_number].page_number[j] = current_page_number;
+                            break;
+                        }
+                    }
+                    break;
+                case Fully_Associative:
+                    while (coldqueue_empty(0) == 0) // if the cold queue is not empty
+                    {
+                        temp = coldqueue_dequeue(0);                                                                                           // get a member (page_number)
+                        if ((_memorystructure->pagemetadata[temp].hot_bit == cold) && (_memorystructure->pagemetadata[temp].fast_bit == fast)) // if the member is still cold
+                        {
+                            uint8_t flag = 0;
+                            for (uint64_t j = 0; j < _memorystructure->set_size; j++) // go through the fast memory
+                            {
+                                if (((FastMemoryStructureTypeFive *)_memorystructure->fastmemorystructure)->page_table[j].PPN == temp)
+                                {
+                                    flag = 1;
+                                    swap_tag = 1; // start swapping
+                                    ((FastMemoryStructureTypeFive *)_memorystructure->fastmemorystructure)->page_table[j].PPN = current_page_number;
+                                    break;
+                                }
+                            }
+                            if (flag == 0)
+                            {
+                                printf("Error at cold, old_page_number %lld", _memorystructure->pagemetadata[temp].fast_bit);
+                                exit(1);
+                            }
+                            break;
+                        }
+                    }
+                    break;
+                default:
+                    exit(1);
+                    break;
+                }
+
+                if (swap_tag == 1) // continuing swapping
+                {
+                    _memorystructure->pagemetadata[temp].fast_bit = slow;
+                    _memorystructure->pagemetadata[current_page_number].fast_bit = fast;
+                    swap_count++;
+                }
+                else if (set_associative == Fully_Associative) // swapping is unsuccessful, but we need buffer this hot page until new cold page is detected
+                {
+                    hotqueue_enqueue(0, current_page_number);
+                }
+            }
+        }
+
+        // decrease all pages' counter per INTERVAL_FOR_DECREMENT cycles
+        if (cycle % INTERVAL_FOR_DECREMENT == 0)
+        {
+            for (uint64_t j = 0; j < _benchmark->length2; j++)
+            {
+                _memorystructure->pagemetadata[j].counter /= 2;
+                if (_memorystructure->pagemetadata[j].counter < threshold)
+                {
+                    if (_memorystructure->pagemetadata[j].hot_bit == hot)
+                    {
+                        _memorystructure->pagemetadata[j].hot_bit = cold; // mark new cold page
+
+                        switch (set_associative)
+                        {
+                        case Direct_Mapped:
+                            break;
+                        case Two_Way:
+                            break;
+                        case Four_Way:
+                            break;
+                        case Eight_Way:
+                            break;
+                        case Fully_Associative:
+                            if (_memorystructure->pagemetadata[j].fast_bit == fast) // new cold pages in fast memory need go to the queue
+                            {
+                                uint8_t find_hotpage = 0;
+                                while (hotqueue_empty(0) == 0) // if the hot queue is not empty
+                                {
+                                    uint8_t temp = hotqueue_dequeue(0);                                                                                   // get a member (page_number)
+                                    if ((_memorystructure->pagemetadata[temp].hot_bit == hot) && (_memorystructure->pagemetadata[temp].fast_bit == slow)) // if the member is still hot
+                                    {
+                                        uint8_t flag = 0;
+                                        for (uint64_t k = 0; k < _memorystructure->set_size; k++) // go through the fast memory
+                                        {
+                                            if (((FastMemoryStructureTypeFive *)_memorystructure->fastmemorystructure)->page_table[k].PPN == j)
+                                            {
+                                                flag = 1;
+                                                find_hotpage = 1;
+                                                ((FastMemoryStructureTypeFive *)_memorystructure->fastmemorystructure)->page_table[k].PPN = temp;
+                                                _memorystructure->pagemetadata[j].fast_bit = slow;
+                                                _memorystructure->pagemetadata[temp].fast_bit = fast;
+                                                break;
+                                            }
+                                        }
+                                        if (flag == 0)
+                                        {
+                                            printf("Error at hot, old_page_number %lld", j);
+                                            exit(1);
+                                        }
+                                        break;
+                                    }
+                                }
+
+                                if (find_hotpage == 0)
+                                    coldqueue_enqueue(0, j);
+                                //printf("enqueue: %lld coldqueue_size %lld\n", j, coldqueue_size(0));
+                            }
+
+                            break;
+                        default:
+                            exit(1);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        cycle++;
+    }
+
+    float hit_rate = (float)fast_access / (fast_access + slow_access);
+    _benchmark->hit_rate = hit_rate;
+    _benchmark->conflictmiss_rate = (float)swappedhotpage_count / (unswappedhotpage_count + swappedhotpage_count);
+    printf("(Hybrid_simulation.c) set_associative %d, fast_access: %lld, slow_access: %lld, hit_rate: %f, swap_count %lld, conflictmiss_rate %f\n", set_associative, fast_access, slow_access, hit_rate, swap_count, _benchmark->conflictmiss_rate);
+}
+
+void hybrid_simulation2(BenchmarkType *_benchmark, MemoryStructureType *_memorystructure)
+{
+    uint8_t threshold = _memorystructure->threshold;
+    SetAssociativeType set_associative = _memorystructure->set_associative;
+
+    // fill page numbers into the fast memory
+    switch (set_associative)
+    {
+    case Direct_Mapped:
+        for (uint64_t i = 0; i < _memorystructure->set_size; i++)
+        {
+            ((FastMemoryStructureTypeOne *)_memorystructure->fastmemorystructure)[i].page_number = i;
+            _memorystructure->pagemetadata[i].fast_bit = fast;
+        }
+        break;
+    case Two_Way:
+        for (uint64_t i = 0; i < _memorystructure->set_size; i++)
+        {
+            ((FastMemoryStructureTypeTwo *)_memorystructure->fastmemorystructure)[i].page_number[0] = i;
+            ((FastMemoryStructureTypeTwo *)_memorystructure->fastmemorystructure)[i].page_number[1] = i + _memorystructure->set_size;
+            _memorystructure->pagemetadata[i].fast_bit = fast;
+            _memorystructure->pagemetadata[i + _memorystructure->set_size].fast_bit = fast;
+        }
+        break;
+    case Four_Way:
+        for (uint64_t i = 0; i < _memorystructure->set_size; i++)
+        {
+            for (uint64_t j = 0; j < Four_Way; j++) // go through the ways
+            {
+                ((FastMemoryStructureTypeThree *)_memorystructure->fastmemorystructure)[i].page_number[j] = i + _memorystructure->set_size * j;
+                _memorystructure->pagemetadata[i + _memorystructure->set_size * j].fast_bit = fast;
+            }
+        }
+        break;
+    case Eight_Way:
+        for (uint64_t i = 0; i < _memorystructure->set_size; i++)
+        {
+            for (uint64_t j = 0; j < Eight_Way; j++) // go through the ways
+            {
+                ((FastMemoryStructureTypeFour *)_memorystructure->fastmemorystructure)[i].page_number[j] = i + _memorystructure->set_size * j;
+                _memorystructure->pagemetadata[i + _memorystructure->set_size * j].fast_bit = fast;
+            }
+        }
+        break;
+    case Fully_Associative:
+        for (uint64_t i = 0; i < _memorystructure->set_size; i++)
+        {
+            ((FastMemoryStructureTypeFive *)_memorystructure->fastmemorystructure)->page_table[i].PPN = i;
+            _memorystructure->pagemetadata[i].fast_bit = fast;
+        }
+        break;
+    default:
+        exit(1);
+        break;
+    }
+
+    uint64_t fast_access = 0;
+    uint64_t slow_access = 0;
+    uint64_t cycle = 1;
+    uint64_t swap_count = 0;
+    uint64_t swappedhotpage_count = 0;
+    uint64_t unswappedhotpage_count = 0;
+    //uint8_t active_hotqueue = 0;                      // 0 or 1
+    for (uint64_t i = 0; i < _benchmark->length; i++) // go through all memory requests
+    {
+        uint64_t current_page_number = _benchmark->memorytrace[i].page_number;
+        if (_memorystructure->pagemetadata[current_page_number].fast_bit == fast)
+        {
+            fast_access++;
+            if (_memorystructure->pagemetadata[current_page_number].hot_bit == hot)
+            {
+                unswappedhotpage_count++;
+            }
+        }
+        else
+        {
+            slow_access++;
+
+            if (_memorystructure->pagemetadata[current_page_number].hot_bit == hot)
+            {
+                swappedhotpage_count++;
+            }
+        }
+
+        if (_memorystructure->pagemetadata[current_page_number].counter < UINT8_MAX)
+            _memorystructure->pagemetadata[current_page_number].counter++; // increment its counter
+
+        if (_memorystructure->pagemetadata[current_page_number].counter >= threshold)
+            _memorystructure->pagemetadata[current_page_number].hot_bit = hot; // mark hot page
+
+        if (_memorystructure->pagemetadata[current_page_number].hot_bit == hot) // swap if the hot page is in slow memory
+        {
+            if (_memorystructure->pagemetadata[current_page_number].fast_bit == slow)
+            {
+                uint64_t set_number = current_page_number % _memorystructure->set_size;
+                uint64_t temp;
+                uint8_t swap_tag = 0;
+
+                switch (set_associative)
+                {
+                case Direct_Mapped:
+                    temp = ((FastMemoryStructureTypeOne *)_memorystructure->fastmemorystructure)[set_number].page_number;
+                    if (_memorystructure->pagemetadata[temp].hot_bit == cold)
+                    {
+                        swap_tag = 1; // start swapping
+                        ((FastMemoryStructureTypeOne *)_memorystructure->fastmemorystructure)[set_number].page_number = current_page_number;
+                    }
+                    break;
+                case Two_Way:
+                    for (uint8_t j = 0; j < Two_Way; j++) // find if there has a cold page
+                    {
+                        temp = ((FastMemoryStructureTypeTwo *)_memorystructure->fastmemorystructure)[set_number].page_number[j];
+                        if (_memorystructure->pagemetadata[temp].hot_bit == cold)
+                        {
+                            swap_tag = 1; // start swapping
+                            ((FastMemoryStructureTypeTwo *)_memorystructure->fastmemorystructure)[set_number].page_number[j] = current_page_number;
+                            break;
+                        }
+                    }
+                    break;
+                case Four_Way:
+                    for (uint8_t j = 0; j < Four_Way; j++) // find if there has a cold page
+                    {
+                        temp = ((FastMemoryStructureTypeThree *)_memorystructure->fastmemorystructure)[set_number].page_number[j];
+                        if (_memorystructure->pagemetadata[temp].hot_bit == cold)
+                        {
+                            swap_tag = 1; // start swapping
+                            ((FastMemoryStructureTypeThree *)_memorystructure->fastmemorystructure)[set_number].page_number[j] = current_page_number;
+                            break;
+                        }
+                    }
+                    break;
+                case Eight_Way:
+                    for (uint8_t j = 0; j < Eight_Way; j++) // find if there has a cold page
+                    {
+                        temp = ((FastMemoryStructureTypeFour *)_memorystructure->fastmemorystructure)[set_number].page_number[j];
+                        if (_memorystructure->pagemetadata[temp].hot_bit == cold)
+                        {
+                            swap_tag = 1; // start swapping
+                            ((FastMemoryStructureTypeFour *)_memorystructure->fastmemorystructure)[set_number].page_number[j] = current_page_number;
+                            break;
+                        }
+                    }
+                    break;
+                case Fully_Associative:
+                    for (uint64_t j = 0; j < _memorystructure->set_size; j++) // find if there has a cold page
+                    {
+                        temp = ((FastMemoryStructureTypeFive *)_memorystructure->fastmemorystructure)->page_table[j].PPN;
+                        if (_memorystructure->pagemetadata[temp].hot_bit == cold)
+                        {
+                            swap_tag = 1; // start swapping
+                            ((FastMemoryStructureTypeFive *)_memorystructure->fastmemorystructure)->page_table[j].PPN = current_page_number;
+                            break;
+                        }
+                    }
+                    break;
+                default:
+                    exit(1);
+                    break;
+                }
+
+                if (swap_tag == 1) // continuing swapping
+                {
+                    _memorystructure->pagemetadata[temp].fast_bit = slow;
+                    _memorystructure->pagemetadata[current_page_number].fast_bit = fast;
+                    swap_count++;
+                }
+            }
+        }
+
+        // decrease all pages' counter per INTERVAL_FOR_DECREMENT cycles
+        if (cycle % INTERVAL_FOR_DECREMENT == 0)
+        {
+            for (uint64_t j = 0; j < _benchmark->length2; j++)
+            {
+                _memorystructure->pagemetadata[j].counter /= 2;
+                if (_memorystructure->pagemetadata[j].counter < threshold)
+                {
+                    if (_memorystructure->pagemetadata[j].hot_bit == hot)
+                    {
+                        _memorystructure->pagemetadata[j].hot_bit = cold; // mark new cold page
+
+                        switch (set_associative)
+                        {
+                        case Direct_Mapped:
+                            break;
+                        case Two_Way:
+                            break;
+                        case Four_Way:
+                            break;
+                        case Eight_Way:
+                            break;
+                        case Fully_Associative:
+                            break;
+                        default:
+                            exit(1);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        cycle++;
+    }
+
+    float hit_rate = (float)fast_access / (fast_access + slow_access);
+    _benchmark->hit_rate = hit_rate;
+    _benchmark->conflictmiss_rate = (float)swappedhotpage_count / (unswappedhotpage_count + swappedhotpage_count);
+    printf("(Hybrid_simulation.c) set_associative %d, fast_access: %lld, slow_access: %lld, hit_rate: %f, swap_count %lld, conflictmiss_rate %f\n", set_associative, fast_access, slow_access, hit_rate, swap_count, _benchmark->conflictmiss_rate);
 }
