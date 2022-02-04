@@ -14,6 +14,7 @@ extern "C"
     void hybrid_fully_associative_simulation_usingqueue(BenchmarkType *_benchmark, MemoryStructureType *_memorystructure);
     void hybrid_simulation(BenchmarkType *_benchmark, MemoryStructureType *_memorystructure);
     void hybrid_simulation2(BenchmarkType *_benchmark, MemoryStructureType *_memorystructure);
+    void hybrid_simulation3(BenchmarkType *_benchmark, MemoryStructureType *_memorystructure);
 
 #ifdef __cplusplus
 }

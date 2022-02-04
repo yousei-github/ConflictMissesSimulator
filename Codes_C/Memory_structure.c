@@ -17,13 +17,13 @@ MemoryStructureType *memory_structure_initialization(BenchmarkType *_benchmark, 
 
     if (_associative != Fully_Associative)
     {
-        memorystructure->set_size = _benchmark->length2 / memorystructure->ratio / _associative;
+        memorystructure->set_size = _benchmark->totoalpagelength / memorystructure->ratio / _associative;
     }
     else
-        memorystructure->set_size = _benchmark->length2 / memorystructure->ratio;
+        memorystructure->set_size = _benchmark->totoalpagelength / memorystructure->ratio;
 
     memorystructure->set_associative = _associative;
-    memorystructure->pagemetadata = (PageMetadataType *)malloc(sizeof(PageMetadataType) * _benchmark->length2);
+    memorystructure->pagemetadata = (PageMetadataType *)malloc(sizeof(PageMetadataType) * _benchmark->totoalpagelength);
     if (memorystructure->pagemetadata == NULL)
     {
         printf("(Memory_structure.c) Error: Memory allocation failed.\n");
@@ -31,7 +31,7 @@ MemoryStructureType *memory_structure_initialization(BenchmarkType *_benchmark, 
     }
 
     // clear value
-    for (uint64_t i = 0; i < _benchmark->length2; i++)
+    for (uint64_t i = 0; i < _benchmark->totoalpagelength; i++)
     {
         memorystructure->pagemetadata[i].counter = 0;
         memorystructure->pagemetadata[i].hot_bit = cold;

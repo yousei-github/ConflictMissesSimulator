@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
     MemoryStructureType *memorystructure;
 
     for (uint16_t i = 0; i < FILEPATH_LENGTH; i++)
-    //uint16_t i = 12;
+    //uint16_t i = 6;
     {
         printf("Benchmark: %d\n", i + 1);
         // Direct_Mapped
@@ -37,7 +37,8 @@ int main(int argc, char *argv[])
         memorystructure = memory_structure_initialization(&benchmark, Ratio_1_to_4, Direct_Mapped, THRESHOLD);
         //hybrid_direct_mapped_simulation(&benchmark, memorystructure);
         //hybrid_simulation(&benchmark, memorystructure);
-        hybrid_simulation2(&benchmark, memorystructure);
+        //hybrid_simulation2(&benchmark, memorystructure);
+        hybrid_simulation3(&benchmark, memorystructure);
         // remember to free the allocated memory
         benchmark_deallocation(&benchmark);
         memory_structure_deallocation(memorystructure);
@@ -50,7 +51,8 @@ int main(int argc, char *argv[])
         memorystructure = memory_structure_initialization(&benchmark, Ratio_1_to_4, Two_Way, THRESHOLD);
         //hybrid_set_associative_simulation(&benchmark, memorystructure);
         //hybrid_simulation(&benchmark, memorystructure);
-        hybrid_simulation2(&benchmark, memorystructure);
+        //hybrid_simulation2(&benchmark, memorystructure);
+        hybrid_simulation3(&benchmark, memorystructure);
         // remember to free the allocated memory
         benchmark_deallocation(&benchmark);
         memory_structure_deallocation(memorystructure);
@@ -63,7 +65,8 @@ int main(int argc, char *argv[])
         memorystructure = memory_structure_initialization(&benchmark, Ratio_1_to_4, Four_Way, THRESHOLD);
         //hybrid_set_associative_simulation(&benchmark, memorystructure);
         //hybrid_simulation(&benchmark, memorystructure);
-        hybrid_simulation2(&benchmark, memorystructure);
+        //hybrid_simulation2(&benchmark, memorystructure);
+        hybrid_simulation3(&benchmark, memorystructure);
         // remember to free the allocated memory
         benchmark_deallocation(&benchmark);
         memory_structure_deallocation(memorystructure);
@@ -76,7 +79,8 @@ int main(int argc, char *argv[])
         memorystructure = memory_structure_initialization(&benchmark, Ratio_1_to_4, Eight_Way, THRESHOLD);
         //hybrid_set_associative_simulation(&benchmark, memorystructure);
         //hybrid_simulation(&benchmark, memorystructure);
-        hybrid_simulation2(&benchmark, memorystructure);
+        //hybrid_simulation2(&benchmark, memorystructure);
+        hybrid_simulation3(&benchmark, memorystructure);
         // remember to free the allocated memory
         benchmark_deallocation(&benchmark);
         memory_structure_deallocation(memorystructure);
@@ -90,7 +94,8 @@ int main(int argc, char *argv[])
         //hybrid_set_associative_simulation(&benchmark, memorystructure);
         //hybrid_fully_associative_simulation_usingqueue(&benchmark, memorystructure);
         //hybrid_simulation(&benchmark, memorystructure);
-        hybrid_simulation2(&benchmark, memorystructure);
+        //hybrid_simulation2(&benchmark, memorystructure);
+        hybrid_simulation3(&benchmark, memorystructure);
         // remember to free the allocated memory
         benchmark_deallocation(&benchmark);
         memory_structure_deallocation(memorystructure);

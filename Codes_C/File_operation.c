@@ -73,7 +73,7 @@ MemoryRequestType *read_csv_to_get_memory_trace(FilePathType *_filepath, Benchma
 #if OUTPUT_DETAIL == ENABLE
     printf("count is %lld, ", count);
 #endif
-    _benchmark->length = count;
+    _benchmark->tracelength = count;
 
     // prepare space to load all memory traces
     MemoryRequestType *_MemoryRequest = (MemoryRequestType *)malloc(sizeof(MemoryRequestType) * count);

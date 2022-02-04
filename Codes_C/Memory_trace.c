@@ -62,7 +62,7 @@ void collect_unique_address(MemoryRequestType *_memoryrequest, uint64_t _length,
 uint64_t calculate_memory_footprint(BenchmarkType *_benchmark, TraceType _trace)
 {
     BufferType64bit buffer1; // store the unique memory requests sorted at ascending order
-    collect_unique_address(_benchmark->memorytrace, _benchmark->length, &buffer1);
+    collect_unique_address(_benchmark->memorytrace, _benchmark->tracelength, &buffer1);
 
     uint64_t page_count = 1;
     uint64_t base = buffer1.buffer[0];
@@ -141,19 +141,19 @@ uint64_t calculate_memory_footprint(BenchmarkType *_benchmark, TraceType _trace)
     }
 
     _benchmark->totalpage = page_temp;
-    _benchmark->length2 = page_count;
+    _benchmark->totoalpagelength = page_count;
     // for (uint64_t i = 0; i < page_count; i++)
     // {
     //     printf("(Memory_trace.c) page_temp[%lld]: %lld %lld\n", i, page_temp[i].base, page_temp[i].page_number);
     // }
 
     // assign each memory request its page number
-    for (uint64_t i = 0; i < _benchmark->length; i++)
+    for (uint64_t i = 0; i < _benchmark->tracelength; i++)
     {
         switch (_trace)
         {
         case byte:
-            for (uint64_t j = 0; j < _benchmark->length2; j++)
+            for (uint64_t j = 0; j < _benchmark->totoalpagelength; j++)
             {
                 if ((_benchmark->totalpage[j].base <= _benchmark->memorytrace[i].address) && (_benchmark->memorytrace[i].address < _benchmark->totalpage[j].base + PAGE_SIZE))
                 {
@@ -163,7 +163,7 @@ uint64_t calculate_memory_footprint(BenchmarkType *_benchmark, TraceType _trace)
             }
             break;
         case page:
-            for (uint64_t j = 0; j < _benchmark->length2; j++)
+            for (uint64_t j = 0; j < _benchmark->totoalpagelength; j++)
             {
                 if (_benchmark->totalpage[j].base == _benchmark->memorytrace[i].address)
                 {

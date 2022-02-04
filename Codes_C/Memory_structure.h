@@ -58,13 +58,13 @@ extern "C"
     typedef struct
     {
         uint64_t page_number[Four_Way];
-        TrackType track[Four_Way];  // LRU replacement policy for Four_Way
+        uint64_t track[Four_Way];  // LRU replacement policy for Four_Way
     } FastMemoryStructureTypeThree; // Four_Way
 
     typedef struct
     {
         uint64_t page_number[Eight_Way];
-        TrackType track[Eight_Way]; // LRU replacement policy for Eight_Way
+        uint64_t track[Eight_Way]; // LRU replacement policy for Eight_Way
     } FastMemoryStructureTypeFour;  // Eight_Way
 
     typedef struct
@@ -85,7 +85,7 @@ extern "C"
         uint8_t threshold; // hotness threshold (0-255)
         uint64_t set_size;
         SetAssociativeType set_associative;
-        PageMetadataType *pagemetadata; // store all used pages
+        PageMetadataType *pagemetadata; // store all used pages's metadata
         void *fastmemorystructure;      // FastMemoryStructureTypeOne, FastMemoryStructureTypeTwo, FastMemoryStructureTypeThree, FastMemoryStructureTypeFour, FastMemoryStructureTypeFive
     } MemoryStructureType;
 

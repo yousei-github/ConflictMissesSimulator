@@ -26,9 +26,9 @@ extern "C"
 	typedef struct
 	{
 		MemoryRequestType *memorytrace;
-		uint64_t length; // for memorytrace
-		TotalPageType *totalpage;
-		uint64_t length2; // for totalpage
+		uint64_t tracelength;	   // for memorytrace
+		TotalPageType *totalpage;  // new address space (continual)
+		uint64_t totoalpagelength; // for totalpage
 		float hit_rate;
 		float conflictmiss_rate;
 	} BenchmarkType;
