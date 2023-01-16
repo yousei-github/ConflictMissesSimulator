@@ -1,0 +1,42 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "cl.exe - Build and debug",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}\\bin\\entry.exe",
+            "args": [
+                // ".\\memory_traces_50000\\600.perlbench_s-210B.champsimtrace_64B",
+                // ".\\memory_traces_50000\\602.gcc_s-734B.champsimtrace_64B",
+                // ".\\memory_traces_50000\\603.bwaves_s-3699B.champsimtrace_64B",
+                ".\\memory_traces_50000\\605.mcf_s-665B.champsimtrace_64B",
+                ".\\memory_traces_50000\\607.cactuBSSN_s-2421B.champsimtrace_64B",
+                ".\\memory_traces_50000\\619.lbm_s-4268B.champsimtrace_64B",
+                ".\\memory_traces_50000\\620.omnetpp_s-874B.champsimtrace_64B",
+                ".\\memory_traces_50000\\621.wrf_s-575B.champsimtrace_64B",
+                ".\\memory_traces_50000\\623.xalancbmk_s-700B.champsimtrace_64B",
+                ".\\memory_traces_50000\\625.x264_s-18B.champsimtrace_64B",
+                ".\\memory_traces_50000\\627.cam4_s-573B.champsimtrace_64B",
+                ".\\memory_traces_50000\\628.pop2_s-17B.champsimtrace_64B",
+                ".\\memory_traces_50000\\631.deepsjeng_s-928B.champsimtrace_64B",
+                ".\\memory_traces_50000\\638.imagick_s-10316B.champsimtrace_64B",
+                ".\\memory_traces_50000\\641.leela_s-800B.champsimtrace_64B",
+                ".\\memory_traces_50000\\644.nab_s-5853B.champsimtrace_64B",
+                ".\\memory_traces_50000\\648.exchange2_s-1699B.champsimtrace_64B",
+                ".\\memory_traces_50000\\649.fotonik3d_s-1176B.champsimtrace_64B",
+                ".\\memory_traces_50000\\654.roms_s-842B.champsimtrace_64B",
+                ".\\memory_traces_50000\\657.xz_s-3167B.champsimtrace_64B",
+                
+            ],
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "console": "externalTerminal",
+            "preLaunchTask": "C/C++: cl.exe build all files"
+        }
+    ]
+}

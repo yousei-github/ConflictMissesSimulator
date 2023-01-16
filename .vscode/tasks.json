@@ -1,1 +1,90 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		// {
+		// 	"type": "cppbuild",
+		// 	"label": "C/C++: g++ build all files for linux environment",
+		// 	"command": "/usr/bin/g++", // The path of compiler
+		// 	"args": [
+		// 		"-fdiagnostics-color=always",
+		// 		//"-O3",	// O1/O2/O3
+		// 		"-g",
+		// 		"-Wall",
+		// 		// "-MM",
+		// 		// "-MT",
+		// 		"-fopenmp",
+		// 		//"-std=c++17",	// c++11/c++17
+		// 		"-I", // e.g., -I dir. This means adding the directory dir to the list of directories to be searched for header files during preprocessing
+		// 		"${workspaceFolder}/Codes_C/inc/",
+		// 		"-I",
+		// 		"${workspaceFolder}/Codes_C/file_operation/",
+		// 		"-I",
+		// 		"${workspaceFolder}/Codes_C/hybrid_memory/",
+		// 		// Below are input files (can be from multiples folders)
+		// 		"${workspaceFolder}/Codes_C/src/*.c*",
+		// 		"${workspaceFolder}/Codes_C/file_operation/*.c*",
+		// 		"${workspaceFolder}/Codes_C/hybrid_memory/*.c*",
 
+		// 		// Below is the executable file's name
+		// 		"-o",
+		// 		"${workspaceFolder}/bin/entry"
+		// 	],
+		// 	"options": {
+		// 		"cwd": "${workspaceFolder}" // define the cwd command, such as ${fileDirname}
+		// 	},
+		// 	"problemMatcher": [
+		// 		"$gcc"
+		// 	],
+		// 	"group": {
+		// 		"kind": "build",
+		// 		"isDefault": true
+		// 	},
+		// 	"detail": "compiler: /usr/bin/g++"
+		// },
+		{
+			"type": "cppbuild",
+			"label": "C/C++: cl.exe build all files for windows environment",
+			"command": "cl.exe",
+			"args": [
+				"/Zi",	// Generates complete debugging information.
+				"-openmp",
+				"/I",	// e.g., /I directory. Searches a directory for include files.
+				"${workspaceFolder}\\Codes_C\\inc\\",
+				"/I",
+				"${workspaceFolder}\\Codes_C\\file_operation\\",
+				"/I",
+				"${workspaceFolder}\\Codes_C\\hybrid_memory\\",
+				// Below are input files (can be from multiples folders)
+				"${workspaceFolder}\\Codes_C\\src\\*.c*",
+				"${workspaceFolder}\\Codes_C\\file_operation\\*.c*",
+				"${workspaceFolder}\\Codes_C\\hybrid_memory\\*.c*",
+
+				"/Fo:",	// e.g., /Fo: pathname. Specifies an object (.obj) file name or directory to be used
+				"${workspaceFolder}\\output\\",
+				"/Fe:",	// e.g., /Fe: pathname. Renames the executable file.
+				"${workspaceFolder}\\bin\\entry.exe"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"	// define the cwd command, such as ${fileDirname}
+			},
+			"problemMatcher": [
+				"$msCompile"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"detail": "compiler: cl.exe"
+		},
+		{
+			"type": "shell",
+			"label": "echo",
+			"command": "echo ${workspaceFolder}\\Codes_C\\",	//${workspaceFolder}
+			"problemMatcher": [],
+			"group": {
+				"kind": "test",
+				"isDefault": true
+			}
+		}
+	]
+}
