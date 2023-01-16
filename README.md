@@ -1,8 +1,27 @@
 # ConflictMissesSimulator
-This is a simulator for evaluating conflict misses in hybrid memory systems
+This is a simulator for evaluating conflict misses with hit rate in hybrid memory systems. It migrates data at a way similar to the paper [CAMEO](https://doi.org/10.1109/MICRO.2014.63) but can switch to different granularities. 
 
-## How to compile and execute this project
-The programming tool is Visual Studio Code and the format is based on the official documents at the website:
-https://code.visualstudio.com/docs/cpp/config-msvc
+# Build and debug
 
-The configuration files for compiling are inside the \vscode directory. Note you needs to recreate the \\.vscode directory and copy the instructions from its files in order to build your own project.
+Before starting to build or debug this project, you might need to be familiar with [the visual studio code tutorial](https://code.visualstudio.com/docs/cpp/config-linux).
+
+## Build
+Build methods are explained below.
+
+### 1. Visual Studio Code-based method.
+- You may need to modify the compiler's path in the `tasks.json` file in the `.vscode` directory.
+- Click `Run Build Task` in the `Terminal` tab.
+
+## Debug
+Debug methods are explained below.
+
+### 1. Visual Studio Code-based method.
+- You may need to modify the debugger's path in the `launch.json` file in the `.vscode` directory.
+- Click `Start Debugging` in the `Run` tab.
+
+
+# Run simulation
+```
+$ [EXECUTION]
+```
+where [EXECUTION] is the executable file's name, such as ./bin/entry.exe.
